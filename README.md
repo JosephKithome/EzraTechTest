@@ -8,6 +8,6 @@
   - Retrieve subscribers http://localhost:8080/api/v1/subscriber/list
   - Get Subscriber by Id http://localhost:8080/api/v1/subscriber/{}
  
-    # Loans
+  # Loans
   - Request for Loan http://localhost:8080/api/v1/loan/request
   - Configure Loan Period http://localhost:8080/api/v1/loan/configure/period
