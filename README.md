@@ -1,6 +1,9 @@
 # API DOCUMENTATION
 - This is a loan lending Api modelling the day to day operations in a loan lending company
 
+# Swagger 
+- Access swagger ui through http://localhost:8080/swagger-ui/index.html
+
     # ENDPOINTS
   # Subsciber
   - Create a subscriber http://localhost:8080/api/v1/subscriber/create
