@@ -1,7 +1,7 @@
 package com.example.ezralendingapi.service;
+
 import com.example.ezralendingapi.dto.LoanRepaymentRequest;
 import com.example.ezralendingapi.dto.LoanRequest;
-import com.example.ezralendingapi.dto.SubscriberRequest;
 import com.example.ezralendingapi.entities.*;
 import com.example.ezralendingapi.repository.LoanPeriodRepository;
 import com.example.ezralendingapi.repository.LoanRepository;
@@ -9,6 +9,7 @@ import com.example.ezralendingapi.repository.ProfileRepository;
 import com.example.ezralendingapi.utils.LogHelper;
 import com.example.ezralendingapi.utils.ResponseObject;
 import com.example.ezralendingapi.utils.RestResponse;
+import com.example.ezralendingapi.utils.SmsUtilityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,10 +27,18 @@ public class LoanService {
 
     private final LoanPeriodRepository loanPeriodRepository;
 
-    public LoanService(ProfileRepository profileRepository, LoanRepository loanRepository, LoanPeriodRepository loanPeriodRepository) {
+    private final SmsUtilityService smsUtilityService;
+
+    public LoanService(
+            ProfileRepository profileRepository,
+            LoanRepository loanRepository,
+            LoanPeriodRepository loanPeriodRepository,
+            SmsUtilityService smsUtilityService)
+    {
         this.profileRepository = profileRepository;
         this.loanRepository = loanRepository;
         this.loanPeriodRepository = loanPeriodRepository;
+        this.smsUtilityService = smsUtilityService;
     }
 
     public RestResponse createLoan(LoanRequest req ) {
@@ -52,6 +61,9 @@ public class LoanService {
                loan.setCreatedAt(LocalDateTime.now());
                loan.setLoanPeriod(req.loanPeriod);
                loanRepository.save(loan);
+
+               //Send A Message
+               smsUtilityService.sendMessage(subscriber.getMsisdn(), "You requested for a loan ");
 
                resp.message = "You have requested for a loan successfully";
                resp.payload = loan;
@@ -79,8 +91,14 @@ public class LoanService {
             //Get the loan we're about to pay for
             Loan loan = loanRepository.findSubscriberLoanById(req.loan);
             //calculate interest
+
+            // Check if the loan has been paid for
+            if(loan.getIs_Cleared()) throw new Exception("This loan has been  cleared");
+
             if(loan.getDue_date().isAfter(LocalDateTime.now())){
+
                 Integer period = calculateNumberOfMonths(loan.getCreatedAt(),LocalDateTime.now());
+
                 LoanRepayment loanRep = new LoanRepayment();
                 loanRep.setLoan(loanRepository.findById(req.loan).get());
 
@@ -100,9 +118,7 @@ public class LoanService {
             resp.message = e.getMessage();
             status = HttpStatus.EXPECTATION_FAILED;
         }
-
         return new  RestResponse(resp,status);
-
     }
     public RestResponse configureLoanPeriods(com.example.ezralendingapi.dto.LoanPeriod request){
         ResponseObject resp = new ResponseObject();

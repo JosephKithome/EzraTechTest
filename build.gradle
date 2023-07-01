@@ -43,6 +43,7 @@ dependencies {
     // This is used to map entities into dtos
     implementation ("org.modelmapper:modelmapper:2.1.1")
     // Other dependencies
+    implementation 'com.twilio.sdk:twilio:8.8.0'
 
     implementation("javax.servlet:javax.servlet-api:4.0.1")
 }

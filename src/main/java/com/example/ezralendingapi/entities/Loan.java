@@ -41,6 +41,8 @@ public class Loan {
     @Column(name="due_date")
     private LocalDateTime due_date;
 
+    @Column
+    private  Boolean is_Cleared =false;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
