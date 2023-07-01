@@ -1,6 +1,7 @@
 package com.example.ezralendingapi.controllers;
 
 import com.example.ezralendingapi.dto.LoanPeriod;
+import com.example.ezralendingapi.dto.LoanRepaymentRequest;
 import com.example.ezralendingapi.dto.LoanRequest;
 import com.example.ezralendingapi.service.LoanService;
 import com.example.ezralendingapi.utils.RestResponse;
@@ -22,6 +23,11 @@ public class LoanController {
     @PostMapping("/request")
     public RestResponse createLoan(@RequestBody LoanRequest req){
         return loanService.createLoan(req);
+    }
+
+    @PostMapping("/repay")
+    private RestResponse payLoan(@RequestBody LoanRepaymentRequest req){
+        return loanService.payLoan(req);
     }
     @PostMapping("/configure/period")
     public RestResponse configureLoanPeriod(@RequestBody LoanPeriod req){
