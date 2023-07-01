@@ -14,3 +14,4 @@
   # Loans
   - Request for Loan http://localhost:8080/api/v1/loan/request
   - Configure Loan Period http://localhost:8080/api/v1/loan/configure/period
+  - Repayment Api http://localhost:8080/api/v1/loan/configure/repay
