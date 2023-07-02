@@ -23,6 +23,15 @@ public class Subscriber {
     @Column(nullable = false, name = "age")
     private Integer age;
 
+    @Column(nullable = false, name = "amount")
+    private Double loanAmount =0.0;
+
+    @Column(nullable = false, name = "credit_limit")
+    private Double creditLimit =0.0;
+
+    @Column (nullable=false, name ="loan_time")
+    private Integer loanTimes =2;
+
     public Subscriber(long l, String number, String john, String doe, int i) {
 
     }
@@ -30,6 +39,7 @@ public class Subscriber {
     public Subscriber() {
 
     }
+
 
     // Constructors, getters, setters, and other methods
 }

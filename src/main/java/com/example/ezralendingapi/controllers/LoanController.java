@@ -5,10 +5,7 @@ import com.example.ezralendingapi.dto.LoanRepaymentRequest;
 import com.example.ezralendingapi.dto.LoanRequest;
 import com.example.ezralendingapi.service.LoanService;
 import com.example.ezralendingapi.utils.RestResponse;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/loan")
@@ -24,6 +21,12 @@ public class LoanController {
     public RestResponse createLoan(@RequestBody LoanRequest req){
         return loanService.createLoan(req);
     }
+
+    @PostMapping("/approve/{id}")
+    public RestResponse approveLoan(@PathVariable("id") Long id, String msisdn){
+        return loanService.approveLoan(id,msisdn);
+    }
+
 
     @PostMapping("/repay")
     private RestResponse payLoan(@RequestBody LoanRepaymentRequest req){

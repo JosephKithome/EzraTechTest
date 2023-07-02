@@ -9,7 +9,6 @@ public class LoanRepaymentRequest {
 
     public Long loan;
     public BigDecimal amount;
-    public LocalDateTime date_paid;
     public BigDecimal penalty;
 
 }

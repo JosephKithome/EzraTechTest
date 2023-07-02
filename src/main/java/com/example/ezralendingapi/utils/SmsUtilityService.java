@@ -21,6 +21,7 @@ public class SmsUtilityService {
     @Value("${twilio_virtual_phoneNumber}")
     private String twilioPhoneNumber;
 
+    
     public RestResponse sendMessage(String phoneNumber,String message){
 
         LogHelper.info("Sending Message ....");
@@ -51,6 +52,11 @@ public class SmsUtilityService {
         return new RestResponse(resp,status);
 
     }
+    /***
+     * Sanitizes and  makes sure  that the phone number supplied meets the
+     * agreed phone format in Twilio to enable the initiation of an sms
+     * @return phoneNumber
+     */
 
     private String sanitizePhoneNumber(String phoneNumber) {
 
