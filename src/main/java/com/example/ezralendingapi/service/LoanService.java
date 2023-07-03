@@ -184,7 +184,7 @@ public class LoanService {
 
                     BigDecimal result = loan.getAmount().subtract(BigDecimal.valueOf(bigDecimalValue.doubleValue()));
                 LogHelper.info("We are subtraction "+ loan.getAmount() +" from " +bigDecimalValue);
-                    LogHelper.info("AFter conversion we get "+ result);
+                    LogHelper.info("After conversion we get "+ result);
                 loanRepaymentRepository.save(loanRep);
 
                 //Update the Loans Table with the required data
