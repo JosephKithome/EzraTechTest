@@ -1,6 +1,9 @@
+package com.example.ezralendingapi.service;
+
 import com.example.ezralendingapi.dto.LoanRequest;
 import com.example.ezralendingapi.entities.Loan;
 import com.example.ezralendingapi.entities.LoanPeriod;
+import com.example.ezralendingapi.entities.LoanStatus;
 import com.example.ezralendingapi.entities.Subscriber;
 import com.example.ezralendingapi.repository.LoanPeriodRepository;
 import com.example.ezralendingapi.repository.LoanRepaymentRepository;
@@ -76,4 +79,35 @@ public class LoanServiceTest {
         verify(profileRepository, times(1)).save(subscriber);
         verify(smsUtilityService, times(1)).sendMessage(eq("1234567890"), anyString());
     }
+
+    @Test
+    public void testApproveLoan_Success() {
+            // Mock the dependencies
+            long loanId = 1;
+            String msisdn = "1234567890";
+
+            Loan loan = new Loan();
+            loan.setStatus(LoanStatus.ACTIVE);
+            loan.setAmount(BigDecimal.valueOf(500));
+            loan.setIs_approved(false);
+
+            when(loanRepository.findSubscriberLoanById(loanId)).thenReturn(loan);
+            when(profileRepository.getCreditLimitByMsisdn(msisdn)).thenReturn(1000.0);
+
+            // Invoke the method
+            RestResponse response = loanService.approveLoan(loanId, msisdn);
+
+            // Verify the result
+            assertEquals(HttpStatus.OK, HttpStatus.OK);
+            assertEquals("Sucess", response.getBody().message);
+            assertEquals("Your loan was approved and it will be credited in your account shortly", response.getBody().payload);
+
+            // Verify the interactions with mocked objects
+            assertTrue(loan.is_approved);
+            assertEquals(LoanStatus.APPROVED, loan.getStatus());
+            verify(loanRepository, times(1)).save(loan);
+            verify(smsUtilityService, times(1)).sendMessage(msisdn, "Your loan was approved and it will be credited in your account shortly");
+        }
+
+
 }
