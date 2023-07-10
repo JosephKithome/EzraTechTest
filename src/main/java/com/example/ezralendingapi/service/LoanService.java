@@ -1,5 +1,6 @@
 package com.example.ezralendingapi.service;
 
+import com.example.ezralendingapi.configs.MQConfig;
 import com.example.ezralendingapi.dto.LoanRepaymentRequest;
 import com.example.ezralendingapi.dto.LoanRequest;
 import com.example.ezralendingapi.entities.*;
@@ -12,6 +13,8 @@ import com.example.ezralendingapi.utils.ResponseObject;
 import com.example.ezralendingapi.utils.RestResponse;
 import com.example.ezralendingapi.utils.SmsUtilityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,13 @@ public class LoanService {
     private final SmsUtilityService smsUtilityService;
 
     private ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    private RabbitTemplate template;
+
+    @Autowired
+    MQConfig mqConfig;
+
 
 
     public LoanService(
@@ -94,6 +104,15 @@ public class LoanService {
                throw new Exception("You can apply for a loan payable between periods of " + loanPeriod);
            }
 
+//           try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+//               IntStream.range(0, 10_000).forEach(i -> {
+//                   executor.submit(() -> {
+//                       Thread.sleep(Duration.ofSeconds(1));
+//                       return i;
+//                   });
+//               });
+//           }
+
        }catch (Exception e){
            resp.message = e.getMessage();
 
@@ -128,6 +147,12 @@ public class LoanService {
                     loanRepository.save(loan);
                     resp.message = "Sucess";
                     resp.payload ="Your loan was approved and it will be credited in your account shortly";
+
+                    template.convertAndSend(
+                            mqConfig.messageExchange,
+                            mqConfig.routingKey,
+                            msisdn
+                    );
 
                     //Send the message
                     this.smsUtilityService.sendMessage(msisdn, resp.payload.toString());

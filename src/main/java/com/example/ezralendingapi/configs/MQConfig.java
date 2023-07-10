@@ -5,27 +5,70 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MQConfig {
-    public String messageExchange1 = "MESSAGE_EXCHANGE";
-    public String messageQueue1 = "MESSAGE_QUEUE";
-    public String routingKey = "ROUTING_KEY";
+
+    @Value("${rabbitmq.exchange.name}")
+    public String messageExchange;
+
+    @Value("${rabbitmq.json_exchange.name}")
+    public String jsonMessageExchange;
+
+
+    @Value("${rabbitmq.queue.name}")
+    private String messageQueue;
+
+    @Value("${rabbitmq.jsonQueue.name}")
+    private String jsonQueue;
+
+
+    @Value("${rabbitmq.queue.routing_key}")
+    public String routingKey;
+
+    @Value("${rabbitmq.queue.jsonRouting_key}")
+    public String jsonRoutingKey;
+
+
+
     @Bean
     public Queue queue(){
 
-        Queue messageQueue = new Queue(messageQueue1);
-        return messageQueue;
+        return new Queue(messageQueue);
     }
 
+
+    /**
+     * Serializes json data to be inserted into a queue
+     * {@link com.example.ezralendingapi.configs.producer.RabbitMQProducer }
+     * */
+    @Bean
+    public Queue jsonQueue(){
+
+        return new Queue(jsonQueue);
+    }
+    /**
+     * @author Kithome Joseph
+     * RabbitMQ exchange config
+     * */
     @Bean
     public TopicExchange topicExchange(){
 
-        TopicExchange messageExchange = new TopicExchange(messageExchange1);
-        return messageExchange;
+        return new TopicExchange(messageExchange);
     }
+
+    @Bean
+    public TopicExchange jsonTopicExchange(){
+
+        return new TopicExchange(jsonMessageExchange);
+    }
+
+    /**
+     * Binding between Queue and exchange using the binding Key
+     * */
 
     @Bean
     public Binding binding (Queue queue, TopicExchange topicExchange){
@@ -37,13 +80,28 @@ public class MQConfig {
     }
 
     @Bean
+    public Binding jsonBinding (){
+
+        return BindingBuilder
+                .bind(jsonQueue())
+                .to(jsonTopicExchange())
+                .with(jsonRoutingKey);
+    }
+    /**
+     * Manages data conversion to Pojo classes
+     * */
+    @Bean
     public MessageConverter messageConverter(){
         return new Jackson2JsonMessageConverter();
     }
 
+    /**
+     * Spring boot autoconfigures ConnectionFactory,RabbitTemplate and RabbitAdmin
+     * */
     @Bean
     public AmqpTemplate amqpTemplate(ConnectionFactory connectionFactory){
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter());
 
         return rabbitTemplate;
 

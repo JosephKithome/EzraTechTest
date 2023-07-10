@@ -29,7 +29,7 @@ public class LoanController {
     @PostMapping("/request")
     public RestResponse createLoan(@RequestBody LoanRequest req){
         template.convertAndSend(
-                mqConfig.messageExchange1,
+                mqConfig.messageExchange,
                 mqConfig.routingKey,
                 req
         );
@@ -38,11 +38,6 @@ public class LoanController {
 
     @PostMapping("/approve/{id}")
     public RestResponse approveLoan(@PathVariable("id") Long id, String msisdn){
-        template.convertAndSend(
-                mqConfig.messageExchange1,
-                mqConfig.routingKey,
-                msisdn
-        );
         return loanService.approveLoan(id,msisdn);
     }
 
@@ -53,11 +48,6 @@ public class LoanController {
     }
     @PostMapping("/configure/period")
     public RestResponse configureLoanPeriod(@RequestBody LoanPeriod req){
-        template.convertAndSend(
-                mqConfig.messageExchange1,
-                mqConfig.routingKey,
-                req
-        );
         return loanService.configureLoanPeriods(req);
     }
 }
